@@ -12,6 +12,8 @@ def cars_list(request):
         songs = Songs.objects.all()
         serializer = SongsSerializer(songs, many=True)
         return Response(serializer.data)
+
+
     elif request.method == 'POST':
         serializer = SongsSerializer(data=request.data)
         if serializer.is_valid() == True:
@@ -20,4 +22,12 @@ def cars_list(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+@api_view(['GET'])
+def song_detail(request, pk):
+    try:
+        song = Songs.objects.get(pk=pk)
+        serializer = SongsSerializer(song)
+        return Response(serializer.data)
+    except Songs.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
