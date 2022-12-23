@@ -1,4 +1,5 @@
 from rest_framework.decorators import api_view
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from .models import Songs
 from .serializers import SongsSerializer
@@ -22,12 +23,16 @@ def cars_list(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 def song_detail(request, pk):
-    try:
+    if request.method == 'GET':
         song = Songs.objects.get(pk=pk)
         serializer = SongsSerializer(song)
         return Response(serializer.data)
-    except Songs.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    
+    elif request.method == 'PUT':
+        song = Songs.objects.get(pk=pk)
+        serializer = SongsSerializer(song, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+        
